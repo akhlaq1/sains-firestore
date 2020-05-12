@@ -194,3 +194,27 @@ def mark_analyzed(sku_item):
     }
     db.collection(main_node).document(sku_item).update(analyzed_dict)
     
+    
+
+def count_collection(coll_ref, count, cursor=None):
+    
+    if cursor is not None:
+        docs = [snapshot.reference for snapshot
+                in coll_ref.limit(1000).start_after(cursor).stream()]
+    else:
+        docs = [snapshot.reference for snapshot
+                in coll_ref.limit(1000).stream()]
+    
+    for i in docs:
+        doc_ref = db.collection(main_node).document(docs[0].id)
+        doc_ref.update(
+                    {
+            "analyzed":0,
+            "update":False})
+
+    count = count + len(docs)
+
+    if len(docs) == 1000:
+        return count_collection(coll_ref, count, docs[999].get())
+    else:
+        print(f"Products at starting of spider {str(count)}")

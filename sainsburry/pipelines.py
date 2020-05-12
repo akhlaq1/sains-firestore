@@ -9,7 +9,7 @@ from . import helper_functions
 from .settings import db, main_node
 from .middlewares import client
 from scrapy.selector import Selector
-
+from .helper_functions import count_collection
 
 
 # noinspection SpellCheckingInspection,PyMethodMayBeStatic,PyUnusedLocal
@@ -18,15 +18,7 @@ class SainsburryPipeline(object):
     def open_spider(self, spider):
         
         try:        
-            docs = db.collection(main_node).stream()
-            for doc in docs:
-                doc_ref = db.collection(main_node).document(doc.id)
-                doc_ref.update(
-                        {
-                "analyzed":0,
-                "update":False
-            }
-                )
+            count_collection(db.collection(main_node), 0)
         except :
             pass
         spider.logger.info('Spider opened: %s' % spider.name)
